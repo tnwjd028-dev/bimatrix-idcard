@@ -1,1 +1,16 @@
-if(!self.define){let e,i={};const n=(n,r)=>(n=new URL(n+".js",r).href,i[n]||new Promise(i=>{if("document"in self){const e=document.createElement("script");e.src=n,e.onload=i,document.head.appendChild(e)}else e=n,importScripts(n),i()}).then(()=>{let e=i[n];if(!e)throw new Error(`Module ${n} didn’t register its module`);return e}));self.define=(r,o)=>{const s=e||("document"in self?document.currentScript.src:"")||location.href;if(i[s])return;let d={};const t=e=>n(e,s),c={module:{uri:s},exports:d,require:t};i[s]=Promise.all(r.map(e=>c[e]||t(e))).then(e=>(o(...e),d))}}define(["./workbox-9c191d2f"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"registerSW.js",revision:"1872c500de691dce40960bb85481de07"},{url:"index.html",revision:"6d766195536213136adfdf9e11ea7708"},{url:"assets/index-DQaU4gyw.js",revision:null},{url:"apple-touch-icon.png",revision:"6943e1452bfd7bb3e8f72975e17db10f"},{url:"favicon.png",revision:"c9b60b7924e7832452f4cd0ae3d7b706"},{url:"icons/icon-192.png",revision:"dbaade25b4321bf56ed6aeed4047f7db"},{url:"icons/icon-512.png",revision:"12a2d2850af4d220ac0d21415426c72b"},{url:"manifest.webmanifest",revision:"baa1efcbe2b33a5e2ebe393d7674df47"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html")))});
+// sw.js — 기존 PWA 서비스워커를 안전하게 제거하는 자폭 스크립트
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach((client) => client.navigate(client.url));
+    })()
+  );
+});
